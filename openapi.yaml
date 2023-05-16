@@ -1,0 +1,53 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Officer API
+    version: 0.0.1
+paths:
+    /admin/v1/officer:
+        post:
+            tags:
+                - Officer
+            operationId: Officer_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/backend.v1.CreateReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/backend.v1.CreateRep'
+components:
+    schemas:
+        backend.v1.CreateRep:
+            type: object
+            properties: {}
+        backend.v1.CreateReq:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                name:
+                    type: string
+                mobile:
+                    type: string
+                status:
+                    type: integer
+                    format: int64
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                deletedAt:
+                    type: string
+tags:
+    - name: Officer
