@@ -10,9 +10,11 @@ ifeq ($(GOHOSTOS), windows)
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
 	API_PROTO_FILES=$(shell $(Git_Bash) -c "find api -name *.proto")
+	API_PROTO_PB_GO_FILES=$(shell $(Git_Bash) -c "find api -name *.pb.go")
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 	API_PROTO_FILES=$(shell find api -name *.proto)
+	API_PROTO_PB_GO_FILES=$(shell find api -name *.pb.go)
 endif
 
 .PHONY: init
@@ -32,6 +34,9 @@ config:
 	       --proto_path=./third_party \
  	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
+.PHONY: api-validate
+api-validate:
+	for pb_go_file in $(API_PROTO_PB_GO_FILES);do protoc-go-inject-tag -input=$$pb_go_file;done
 
 .PHONY: api
 # generate api proto
@@ -43,6 +48,8 @@ api:
  	       --go-grpc_out=paths=source_relative:./api \
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
 	       $(API_PROTO_FILES)
+	make api-validate
+
 
 .PHONY: build
 # build
