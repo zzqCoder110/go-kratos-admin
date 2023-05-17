@@ -5,20 +5,41 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
+var ProviderSet = wire.NewSet(NewData, NewMysql, NewOfficerRepo)
 
 // Data .
 type Data struct {
-	// TODO wrapped database client
+	Module string
+	db     *gorm.DB
+	log    *log.Helper
 }
 
 // NewData .
-func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
-	cleanup := func() {
-		log.NewHelper(logger).Info("closing the data resources")
+func NewData(db *gorm.DB, c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	module := "go-sim"
+	logs := log.NewHelper(log.With(logger, "module ", module))
+
+	data := &Data{
+		Module: module,
+		db:     db,
 	}
-	return &Data{}, cleanup, nil
+
+	cleanup := func() {
+		logs.Info("close go-sim")
+	}
+	return data, cleanup, nil
+}
+
+func NewMysql(conf *conf.Data, logger log.Logger) *gorm.DB {
+	logs := log.NewHelper(log.With(logger, "module", "go-sim"))
+	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{})
+	if err != nil {
+		logs.Fatalf("mysql connect err : %v", err)
+	}
+	return db
 }

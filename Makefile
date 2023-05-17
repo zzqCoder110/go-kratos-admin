@@ -56,6 +56,11 @@ generate:
 	go get github.com/google/wire/cmd/wire@latest
 	go generate ./...
 
+.PHONY: wire
+# generate wire
+wire:
+	cd cmd/go-sim && wire
+
 .PHONY: all
 # generate all
 all:
