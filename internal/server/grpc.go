@@ -3,7 +3,7 @@ package server
 import (
 	v1 "go-sim/api/backend/v1"
 	"go-sim/internal/conf"
-	"go-sim/internal/service"
+	"go-sim/internal/service/officer"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,7 +11,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, Officer *service.OfficerService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, Officer *officer.OfficerService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),

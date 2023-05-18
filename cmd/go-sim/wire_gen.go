@@ -13,7 +13,7 @@ import (
 	"go-sim/internal/conf"
 	"go-sim/internal/data"
 	"go-sim/internal/server"
-	"go-sim/internal/service"
+	"go-sim/internal/service/officer"
 )
 
 import (
@@ -31,7 +31,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	}
 	officerRepo := data.NewOfficerRepo(dataData, logger)
 	officerUsecase := biz.NewOfficerUsecase(officerRepo, logger)
-	officerService := service.NewGreeterService(officerUsecase)
+	officerService := officer.NewGreeterService(officerUsecase)
 	grpcServer := server.NewGRPCServer(confServer, officerService, logger)
 	httpServer := server.NewHTTPServer(confServer, officerService, logger)
 	app := newApp(logger, grpcServer, httpServer)
