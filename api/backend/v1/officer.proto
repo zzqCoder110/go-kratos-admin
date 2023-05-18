@@ -22,7 +22,7 @@ message CreateReq {
   string password = 2;
   // @gotags: `validate:"required,max=50" label:"昵称"`
   string name = 3;
-  // @gotags: `validate:"required,max=20" label:"手机号码"`
+  // @gotags: `validate:"required,max=20" label:"手机号"`
   string mobile = 4;
   int64 status = 5;
   string created_at = 6;

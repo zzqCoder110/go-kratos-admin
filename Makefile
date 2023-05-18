@@ -50,6 +50,15 @@ api:
 	       $(API_PROTO_FILES)
 	make api-validate
 
+.PHONY: errors
+# generate error proto
+errors:
+	protoc --proto_path=./api \
+		   --proto_path=./third_party \
+		   --go_out=paths=source_relative:./api \
+		   --go-errors_out=paths=source_relative:./api \
+		   $(API_PROTO_FILES)
+	make api-validate
 
 .PHONY: build
 # build

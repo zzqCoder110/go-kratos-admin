@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"go-sim/internal/pkg/auth"
 	"go-sim/pkg/validate"
 
@@ -25,7 +24,7 @@ func NewGreeterService(uc *biz.OfficerUsecase) *OfficerService {
 // Create implements backend.OfficerServer.
 func (s *OfficerService) Create(ctx context.Context, req *v1.CreateReq) (*v1.CreateRep, error) {
 	if err := validate.ValidateStructCN(req); err != nil {
-		return nil, errors.New(err.Error())
+		return nil, v1.ErrorParamsValidation(err.Error())
 	}
 	return &v1.CreateRep{}, nil
 	pwd, _ := auth.Encrypt(req.Password)

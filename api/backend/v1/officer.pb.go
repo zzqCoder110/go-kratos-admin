@@ -32,8 +32,8 @@ type CreateReq struct {
 	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty" validate:"required,min=6,max=20" label:"密码"`
 	// @gotags: `validate:"required,max=50" label:"昵称"`
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" validate:"required,max=50" label:"昵称"`
-	// @gotags: `validate:"required,max=20" label:"手机号码"`
-	Mobile    string `protobuf:"bytes,4,opt,name=mobile,proto3" json:"mobile,omitempty" validate:"required,max=20" label:"手机号码"`
+	// @gotags: `validate:"required,max=20" label:"手机号"`
+	Mobile    string `protobuf:"bytes,4,opt,name=mobile,proto3" json:"mobile,omitempty" validate:"required,max=20" label:"手机号"`
 	Status    int64  `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`
 	CreatedAt string `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt string `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
