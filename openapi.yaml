@@ -6,6 +6,24 @@ info:
     title: Officer API
     version: 0.0.1
 paths:
+    /admin/v1/login:
+        post:
+            tags:
+                - Officer
+            operationId: Officer_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/backend.v1.LoginReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/backend.v1.LoginRep'
     /admin/v1/officer:
         post:
             tags:
@@ -53,5 +71,22 @@ components:
                     type: string
                 deletedAt:
                     type: string
+        backend.v1.LoginRep:
+            type: object
+            properties:
+                Token:
+                    type: string
+                expire:
+                    type: string
+                    format: date-time
+        backend.v1.LoginReq:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: '@gotags: validate:"required,min=3,max=50" label:"用户名"`'
+                password:
+                    type: string
+                    description: '@gotags: `validate:"required,min=6,max=20" label:"密码"`'
 tags:
     - name: Officer

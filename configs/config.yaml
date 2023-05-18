@@ -5,10 +5,14 @@ server:
   grpc:
     addr: 0.0.0.0:9000
     timeout: 1s
+jwt:
+  key: gosimgosimgogogosimsimsim
+  timeout: 24h
+  max_refresh: 24h
 data:
   database:
     driver: mysql
-    source: root:aa123456.@tcp(127.0.0.1:3306)/go-sim
+    source: root:aa123456.@tcp(127.0.0.1:3306)/go-sim?charset=utf8&parseTime=true&loc=Local
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

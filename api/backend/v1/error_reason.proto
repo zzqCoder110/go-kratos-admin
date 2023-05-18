@@ -8,4 +8,5 @@ option go_package = "go-sim/api/backend/v1;v1";
 enum ErrorReason {
   option (errors.default_code) = 500;
   Params_Validation = 0 [(errors.code) = 400];
+  Login_Failed = 1 [(errors.code) = 401];
 }

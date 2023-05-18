@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OfficerClient interface {
 	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRep, error)
+	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginRep, error)
 }
 
 type officerClient struct {
@@ -42,11 +43,21 @@ func (c *officerClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.
 	return out, nil
 }
 
+func (c *officerClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginRep, error) {
+	out := new(LoginRep)
+	err := c.cc.Invoke(ctx, "/backend.v1.Officer/Login", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OfficerServer is the server API for Officer service.
 // All implementations must embed UnimplementedOfficerServer
 // for forward compatibility
 type OfficerServer interface {
 	Create(context.Context, *CreateReq) (*CreateRep, error)
+	Login(context.Context, *LoginReq) (*LoginRep, error)
 	mustEmbedUnimplementedOfficerServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedOfficerServer struct {
 
 func (UnimplementedOfficerServer) Create(context.Context, *CreateReq) (*CreateRep, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedOfficerServer) Login(context.Context, *LoginReq) (*LoginRep, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedOfficerServer) mustEmbedUnimplementedOfficerServer() {}
 
@@ -88,6 +102,24 @@ func _Officer_Create_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Officer_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OfficerServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backend.v1.Officer/Login",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OfficerServer).Login(ctx, req.(*LoginReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Officer_ServiceDesc is the grpc.ServiceDesc for Officer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Officer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _Officer_Create_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _Officer_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

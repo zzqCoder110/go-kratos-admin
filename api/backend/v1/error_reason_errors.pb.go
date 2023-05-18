@@ -22,3 +22,15 @@ func IsParamsValidation(err error) bool {
 func ErrorParamsValidation(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ErrorReason_Params_Validation.String(), fmt.Sprintf(format, args...))
 }
+
+func IsLoginFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_Login_Failed.String() && e.Code == 401
+}
+
+func ErrorLoginFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, ErrorReason_Login_Failed.String(), fmt.Sprintf(format, args...))
+}
