@@ -3,10 +3,10 @@ package biz
 import (
 	"context"
 	"errors"
-	"github.com/golang-jwt/jwt/v4"
 	v1 "go-sim/api/backend/v1"
 	"go-sim/internal/conf"
 	"go-sim/internal/pkg/auth"
+	"strconv"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -73,14 +73,13 @@ func (uc *OfficerUsecase) Login(ctx context.Context, req *v1.LoginReq) (*v1.Logi
 	}
 
 	// generate token
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"officer_id": officer.Id,
-	})
-	signedString, err := claims.SignedString([]byte(uc.key))
+	authn := auth.NewAuth(strconv.FormatInt(officer.Id, 10))
+
+	token := authn.GenerateJWTToken([]byte(uc.key))
 	if err != nil {
 		return nil, v1.ErrorLoginFailed("登陆凭证生成失败: %s", err.Error())
 	}
 	return &v1.LoginRep{
-		Token: signedString,
+		Token: token,
 	}, nil
 }
