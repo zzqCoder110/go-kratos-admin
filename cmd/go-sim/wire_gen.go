@@ -33,7 +33,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.Jwt, logger
 	officerUsecase := biz.NewOfficerUsecase(jwt, officerRepo, logger)
 	officerService := officer.NewGreeterService(officerUsecase)
 	grpcServer := server.NewGRPCServer(confServer, officerService, logger)
-	httpServer := server.NewHTTPServer(confServer, officerService, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, officerService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
