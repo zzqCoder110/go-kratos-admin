@@ -1,42 +1,26 @@
 package auth
 
 import (
+	"context"
 	"errors"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwtV4 "github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Auth struct {
-	Path    string
-	Method  string
-	Subject string
+type CustomAuth struct {
+	Id       int64
+	Username string
+	jwtV4.RegisteredClaims
 }
 
-func NewAuth(data string) *Auth {
-	return &Auth{
-		Subject: data,
-	}
-}
-
-const (
-	ClaimAuthorityId = "authorityId"
+var (
+	ErrParseJWTTokenFail  = errors.New("获取凭证信息失败")
+	ErrParseJWTTokenEmpty = errors.New("凭证信息为空")
 )
 
-// Encrypt 加解密
-func Encrypt(source string) (string, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(source), bcrypt.DefaultCost)
-	return string(hashedBytes), err
-}
-
-func Compare(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-}
-
-func (auth *Auth) GenerateJWTToken(secretKey []byte) string {
-	claims := jwtV4.NewWithClaims(jwtV4.SigningMethodHS256,
-		jwtV4.MapClaims{
-			ClaimAuthorityId: auth.Subject,
-		})
+func GenerateJWTToken(loginInfo CustomAuth, secretKey []byte) string {
+	claims := jwtV4.NewWithClaims(jwtV4.SigningMethodHS256, loginInfo)
 
 	signedToken, err := claims.SignedString(secretKey)
 	if err != nil {
@@ -46,40 +30,27 @@ func (auth *Auth) GenerateJWTToken(secretKey []byte) string {
 	return signedToken
 }
 
-func (auth *Auth) ParseJWTToken(token string, secretKey []byte) error {
-	parseAuth, err := jwtV4.Parse(token, func(*jwtV4.Token) (interface{}, error) {
-		return secretKey, nil
-	})
-	if err != nil {
-		return err
-	}
-
-	claims, ok := parseAuth.Claims.(jwtV4.MapClaims)
+func GetLoginIdByContext(ctx context.Context) (int64, error) {
+	claims, ok := jwt.FromContext(ctx)
 	if !ok {
-		return errors.New("no jwt token in context")
+		return 0, ErrParseJWTTokenFail
 	}
 
-	if err := auth.parseAccessJwtToken(claims); err != nil {
-		return err
+	mapCliaims := claims.(*jwtV4.MapClaims)
+	Id := (*mapCliaims)["Id"].(float64)
+	if Id == 0 {
+		return 0, ErrParseJWTTokenEmpty
 	}
-
-	return nil
+	return int64(Id), nil
 }
 
-func (auth *Auth) parseAccessJwtToken(claims jwtV4.Claims) error {
-	if claims == nil {
-		return errors.New("claims is nil")
-	}
+// Encrypt 密码加密
+func Encrypt(source string) (string, error) {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(source), bcrypt.DefaultCost)
+	return string(hashedBytes), err
+}
 
-	mc, ok := claims.(jwtV4.MapClaims)
-	if !ok {
-		return errors.New("claims is not map claims")
-	}
-
-	strAuthorityId, ok := mc[ClaimAuthorityId]
-	if ok {
-		auth.Subject = strAuthorityId.(string)
-	}
-
-	return nil
+// Compare 密码对比
+func Compare(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

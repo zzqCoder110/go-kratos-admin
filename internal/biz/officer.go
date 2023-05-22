@@ -6,7 +6,6 @@ import (
 	v1 "go-sim/api/backend/v1"
 	"go-sim/internal/conf"
 	"go-sim/internal/pkg/auth"
-	"strconv"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -73,9 +72,12 @@ func (uc *OfficerUsecase) Login(ctx context.Context, req *v1.LoginReq) (*v1.Logi
 	}
 
 	// generate token
-	authn := auth.NewAuth(strconv.FormatInt(officer.Id, 10))
+	custom := auth.CustomAuth{
+		Id:       officer.Id,
+		Username: officer.Username,
+	}
 
-	token := authn.GenerateJWTToken([]byte(uc.key))
+	token := auth.GenerateJWTToken(custom, []byte(uc.key))
 	if err != nil {
 		return nil, v1.ErrorLoginFailed("登陆凭证生成失败: %s", err.Error())
 	}
