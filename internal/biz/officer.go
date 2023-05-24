@@ -31,6 +31,11 @@ type Officer struct {
 	DeletedAt time.Time `json:"deletedAt,omitempty" gorm:"column:deleted_at"`
 }
 
+const (
+	StatusNormal int = iota + 1
+	StatusDelete
+)
+
 func (o Officer) TableName() string {
 	return "officer"
 }
@@ -39,9 +44,9 @@ func (o Officer) TableName() string {
 type OfficerRepo interface {
 	Create(context.Context, *Officer) error
 	GetByUsername(ctx context.Context, username string) (*Officer, error)
-	Update(context.Context, *Officer) (*Officer, error)
-	FindByID(context.Context, int64) (*Officer, error)
-	ListAll(context.Context) ([]*Officer, error)
+	Update(context.Context, *Officer) error
+	GetByID(context.Context, int64) (*Officer, error)
+	List(context.Context) ([]*Officer, error)
 }
 
 // OfficerUsecase is a Officer usecase.
@@ -57,8 +62,19 @@ func NewOfficerUsecase(conf *conf.Jwt, repo OfficerRepo, logger log.Logger) *Off
 }
 
 func (uc *OfficerUsecase) Create(ctx context.Context, g *Officer) error {
-	//uc.log.WithContext(ctx).Infof("CreateGreeter: %v", g.Hello)
 	return uc.repo.Create(ctx, g)
+}
+
+func (uc *OfficerUsecase) Update(ctx context.Context, req *v1.UpdateReq) error {
+	officer, err := uc.repo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
+	officer.Username = req.Username
+	officer.Name = req.Name
+	officer.Mobile = req.Mobile
+	officer.Status = req.Status
+	return uc.repo.Update(ctx, officer)
 }
 
 func (uc *OfficerUsecase) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRep, error) {

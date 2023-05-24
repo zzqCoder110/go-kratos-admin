@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OfficerClient interface {
-	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRep, error)
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginRep, error)
+	Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type officerClient struct {
@@ -34,8 +36,8 @@ func NewOfficerClient(cc grpc.ClientConnInterface) OfficerClient {
 	return &officerClient{cc}
 }
 
-func (c *officerClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRep, error) {
-	out := new(CreateRep)
+func (c *officerClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/backend.v1.Officer/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,12 +54,22 @@ func (c *officerClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *officerClient) Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/backend.v1.Officer/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OfficerServer is the server API for Officer service.
 // All implementations must embed UnimplementedOfficerServer
 // for forward compatibility
 type OfficerServer interface {
-	Create(context.Context, *CreateReq) (*CreateRep, error)
+	Create(context.Context, *CreateReq) (*emptypb.Empty, error)
 	Login(context.Context, *LoginReq) (*LoginRep, error)
+	Update(context.Context, *UpdateReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOfficerServer()
 }
 
@@ -65,11 +77,14 @@ type OfficerServer interface {
 type UnimplementedOfficerServer struct {
 }
 
-func (UnimplementedOfficerServer) Create(context.Context, *CreateReq) (*CreateRep, error) {
+func (UnimplementedOfficerServer) Create(context.Context, *CreateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedOfficerServer) Login(context.Context, *LoginReq) (*LoginRep, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedOfficerServer) Update(context.Context, *UpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedOfficerServer) mustEmbedUnimplementedOfficerServer() {}
 
@@ -120,6 +135,24 @@ func _Officer_Login_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Officer_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OfficerServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backend.v1.Officer/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OfficerServer).Update(ctx, req.(*UpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Officer_ServiceDesc is the grpc.ServiceDesc for Officer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +167,10 @@ var Officer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _Officer_Login_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _Officer_Update_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

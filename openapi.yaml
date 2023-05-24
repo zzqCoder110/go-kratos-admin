@@ -25,6 +25,20 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/backend.v1.LoginRep'
     /admin/v1/officer:
+        put:
+            tags:
+                - Officer
+            operationId: Officer_Update
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/backend.v1.UpdateReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
         post:
             tags:
                 - Officer
@@ -38,15 +52,9 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/backend.v1.CreateRep'
+                    content: {}
 components:
     schemas:
-        backend.v1.CreateRep:
-            type: object
-            properties: {}
         backend.v1.CreateReq:
             type: object
             properties:
@@ -65,12 +73,6 @@ components:
                 status:
                     type: integer
                     format: int64
-                createdAt:
-                    type: string
-                updatedAt:
-                    type: string
-                deletedAt:
-                    type: string
         backend.v1.LoginRep:
             type: object
             properties:
@@ -88,5 +90,25 @@ components:
                 password:
                     type: string
                     description: '@gotags: `validate:"required,min=6,max=20" label:"密码"`'
+        backend.v1.UpdateReq:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: '@gotags: validate:"required" label:"ID"`'
+                    format: int64
+                username:
+                    type: string
+                    description: '@gotags: validate:"required,min=3,max=50" label:"用户名"`'
+                name:
+                    type: string
+                    description: '@gotags: `validate:"required,max=50" label:"昵称"`'
+                mobile:
+                    type: string
+                    description: '@gotags: `validate:"required,max=20" label:"手机号"`'
+                status:
+                    type: integer
+                    description: '@gotags: `validate:"required,oneof=1 2" label:"状态"`'
+                    format: int64
 tags:
     - name: Officer

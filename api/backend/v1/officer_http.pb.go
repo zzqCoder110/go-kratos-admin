@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,16 +22,19 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationOfficerCreate = "/backend.v1.Officer/Create"
 const OperationOfficerLogin = "/backend.v1.Officer/Login"
+const OperationOfficerUpdate = "/backend.v1.Officer/Update"
 
 type OfficerHTTPServer interface {
-	Create(context.Context, *CreateReq) (*CreateRep, error)
+	Create(context.Context, *CreateReq) (*emptypb.Empty, error)
 	Login(context.Context, *LoginReq) (*LoginRep, error)
+	Update(context.Context, *UpdateReq) (*emptypb.Empty, error)
 }
 
 func RegisterOfficerHTTPServer(s *http.Server, srv OfficerHTTPServer) {
 	r := s.Route("/")
 	r.POST("/admin/v1/officer", _Officer_Create0_HTTP_Handler(srv))
 	r.POST("/admin/v1/login", _Officer_Login0_HTTP_Handler(srv))
+	r.PUT("/admin/v1/officer", _Officer_Update0_HTTP_Handler(srv))
 }
 
 func _Officer_Create0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context) error {
@@ -47,7 +51,7 @@ func _Officer_Create0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context)
 		if err != nil {
 			return err
 		}
-		reply := out.(*CreateRep)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -71,9 +75,29 @@ func _Officer_Login0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context) 
 	}
 }
 
+func _Officer_Update0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOfficerUpdate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Update(ctx, req.(*UpdateReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type OfficerHTTPClient interface {
-	Create(ctx context.Context, req *CreateReq, opts ...http.CallOption) (rsp *CreateRep, err error)
+	Create(ctx context.Context, req *CreateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginRep, err error)
+	Update(ctx context.Context, req *UpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type OfficerHTTPClientImpl struct {
@@ -84,8 +108,8 @@ func NewOfficerHTTPClient(client *http.Client) OfficerHTTPClient {
 	return &OfficerHTTPClientImpl{client}
 }
 
-func (c *OfficerHTTPClientImpl) Create(ctx context.Context, in *CreateReq, opts ...http.CallOption) (*CreateRep, error) {
-	var out CreateRep
+func (c *OfficerHTTPClientImpl) Create(ctx context.Context, in *CreateReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/admin/v1/officer"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOfficerCreate))
@@ -104,6 +128,19 @@ func (c *OfficerHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ..
 	opts = append(opts, http.Operation(OperationOfficerLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *OfficerHTTPClientImpl) Update(ctx context.Context, in *UpdateReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/admin/v1/officer"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOfficerUpdate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
