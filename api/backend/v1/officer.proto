@@ -27,6 +27,12 @@ service Officer {
       body: "*"
     };
   }
+  rpc List (ListReq) returns (ListRep) {
+    option (google.api.http) = {
+      post: "/admin/v1/officer/list"
+      body: "*"
+    };
+  }
 }
 
 message CreateReq {
@@ -65,4 +71,30 @@ message UpdateReq {
   string mobile = 5;
   // @gotags: `validate:"required,oneof=1 2" label:"状态"`
   int64 status = 6;
+}
+
+message OfficerInfo {
+  int64 id = 1;
+  string username = 2;
+  string name = 3;
+  string mobile = 4;
+  string email = 5;
+  string avatar = 6;
+  int64 status = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message ListReq {
+  int64 page = 1;
+  int64 pageSize = 2;
+  string username = 3;
+  string mobile = 4;
+  string name = 5;
+  int64 status = 6;
+}
+
+message ListRep {
+  int64 total = 1;
+  repeated OfficerInfo list = 2;
 }

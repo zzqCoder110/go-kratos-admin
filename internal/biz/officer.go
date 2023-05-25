@@ -46,7 +46,7 @@ type OfficerRepo interface {
 	GetByUsername(ctx context.Context, username string) (*Officer, error)
 	Update(context.Context, *Officer) error
 	GetByID(context.Context, int64) (*Officer, error)
-	List(context.Context) ([]*Officer, error)
+	List(context.Context, int64, int64, map[string]interface{}) ([]*Officer, int64, error)
 }
 
 // OfficerUsecase is a Officer usecase.
@@ -100,4 +100,8 @@ func (uc *OfficerUsecase) Login(ctx context.Context, req *v1.LoginReq) (*v1.Logi
 	return &v1.LoginRep{
 		Token: token,
 	}, nil
+}
+
+func (uc *OfficerUsecase) List(ctx context.Context, page, pageSize int64, params map[string]interface{}) ([]*Officer, int64, error) {
+	return uc.repo.List(ctx, page, pageSize, params)
 }

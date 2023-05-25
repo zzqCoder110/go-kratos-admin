@@ -26,6 +26,7 @@ type OfficerClient interface {
 	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginRep, error)
 	Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListRep, error)
 }
 
 type officerClient struct {
@@ -63,6 +64,15 @@ func (c *officerClient) Update(ctx context.Context, in *UpdateReq, opts ...grpc.
 	return out, nil
 }
 
+func (c *officerClient) List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListRep, error) {
+	out := new(ListRep)
+	err := c.cc.Invoke(ctx, "/backend.v1.Officer/List", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OfficerServer is the server API for Officer service.
 // All implementations must embed UnimplementedOfficerServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type OfficerServer interface {
 	Create(context.Context, *CreateReq) (*emptypb.Empty, error)
 	Login(context.Context, *LoginReq) (*LoginRep, error)
 	Update(context.Context, *UpdateReq) (*emptypb.Empty, error)
+	List(context.Context, *ListReq) (*ListRep, error)
 	mustEmbedUnimplementedOfficerServer()
 }
 
@@ -85,6 +96,9 @@ func (UnimplementedOfficerServer) Login(context.Context, *LoginReq) (*LoginRep, 
 }
 func (UnimplementedOfficerServer) Update(context.Context, *UpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedOfficerServer) List(context.Context, *ListReq) (*ListRep, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedOfficerServer) mustEmbedUnimplementedOfficerServer() {}
 
@@ -153,6 +167,24 @@ func _Officer_Update_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Officer_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OfficerServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backend.v1.Officer/List",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OfficerServer).List(ctx, req.(*ListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Officer_ServiceDesc is the grpc.ServiceDesc for Officer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +203,10 @@ var Officer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Update",
 			Handler:    _Officer_Update_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Officer_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

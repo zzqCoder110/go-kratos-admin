@@ -69,6 +69,23 @@ func (r *officerRepo) GetById(ctx context.Context, id int64) (*biz.Officer, erro
 	return data, nil
 }
 
-func (r *officerRepo) List(context.Context) ([]*biz.Officer, error) {
-	return nil, nil
+func (r *officerRepo) List(ctx context.Context, page, pageSize int64, params map[string]interface{}) ([]*biz.Officer, int64, error) {
+	query := r.data.db
+	if params["username"].(string) != "" {
+		query = query.Where("username = ?", params["username"])
+	}
+	if params["name"].(string) != "" {
+		query = query.Where("name LIKE ?", "%"+params["name"].(string)+"%")
+	}
+	if params["mobile"].(string) != "" {
+		query = query.Where("mobile = ?", params["mobile"])
+	}
+	if params["status"].(int64) != 0 {
+		query = query.Where("status = ?", params["status"])
+	}
+
+	var data []*biz.Officer
+	count := int64(0)
+	query.Find(&data).Count(&count)
+	return data, count, nil
 }

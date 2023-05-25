@@ -21,11 +21,13 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationOfficerCreate = "/backend.v1.Officer/Create"
+const OperationOfficerList = "/backend.v1.Officer/List"
 const OperationOfficerLogin = "/backend.v1.Officer/Login"
 const OperationOfficerUpdate = "/backend.v1.Officer/Update"
 
 type OfficerHTTPServer interface {
 	Create(context.Context, *CreateReq) (*emptypb.Empty, error)
+	List(context.Context, *ListReq) (*ListRep, error)
 	Login(context.Context, *LoginReq) (*LoginRep, error)
 	Update(context.Context, *UpdateReq) (*emptypb.Empty, error)
 }
@@ -35,6 +37,7 @@ func RegisterOfficerHTTPServer(s *http.Server, srv OfficerHTTPServer) {
 	r.POST("/admin/v1/officer", _Officer_Create0_HTTP_Handler(srv))
 	r.POST("/admin/v1/login", _Officer_Login0_HTTP_Handler(srv))
 	r.PUT("/admin/v1/officer", _Officer_Update0_HTTP_Handler(srv))
+	r.POST("/admin/v1/officer/list", _Officer_List0_HTTP_Handler(srv))
 }
 
 func _Officer_Create0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context) error {
@@ -94,8 +97,28 @@ func _Officer_Update0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Officer_List0_HTTP_Handler(srv OfficerHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOfficerList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.List(ctx, req.(*ListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListRep)
+		return ctx.Result(200, reply)
+	}
+}
+
 type OfficerHTTPClient interface {
 	Create(ctx context.Context, req *CreateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	List(ctx context.Context, req *ListReq, opts ...http.CallOption) (rsp *ListRep, err error)
 	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginRep, err error)
 	Update(ctx context.Context, req *UpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -113,6 +136,19 @@ func (c *OfficerHTTPClientImpl) Create(ctx context.Context, in *CreateReq, opts 
 	pattern := "/admin/v1/officer"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOfficerCreate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *OfficerHTTPClientImpl) List(ctx context.Context, in *ListReq, opts ...http.CallOption) (*ListRep, error) {
+	var out ListRep
+	pattern := "/admin/v1/officer/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOfficerList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
