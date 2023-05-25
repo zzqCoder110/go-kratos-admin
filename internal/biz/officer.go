@@ -105,3 +105,14 @@ func (uc *OfficerUsecase) Login(ctx context.Context, req *v1.LoginReq) (*v1.Logi
 func (uc *OfficerUsecase) List(ctx context.Context, page, pageSize int64, params map[string]interface{}) ([]*Officer, int64, error) {
 	return uc.repo.List(ctx, page, pageSize, params)
 }
+
+func (uc *OfficerUsecase) Info(ctx context.Context, id int64) (*Officer, error) {
+	if id == 0 {
+		loginId, err := auth.GetLoginIdByContext(ctx)
+		if err != nil {
+			return nil, err
+		}
+		id = loginId
+	}
+	return uc.repo.GetByID(ctx, id)
+}

@@ -33,6 +33,11 @@ service Officer {
       body: "*"
     };
   }
+  rpc Info (InfoReq) returns (OfficerInfo) {
+    option (google.api.http) = {
+      get: "/admin/v1/officer"
+    };
+  }
 }
 
 message CreateReq {
@@ -71,6 +76,10 @@ message UpdateReq {
   string mobile = 5;
   // @gotags: `validate:"required,oneof=1 2" label:"状态"`
   int64 status = 6;
+}
+
+message InfoReq {
+  int64 id = 1;
 }
 
 message OfficerInfo {

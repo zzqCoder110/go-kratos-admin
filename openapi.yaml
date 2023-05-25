@@ -25,6 +25,23 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/backend.v1.LoginRep'
     /admin/v1/officer:
+        get:
+            tags:
+                - Officer
+            operationId: Officer_Info
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/backend.v1.OfficerInfo'
         put:
             tags:
                 - Officer
