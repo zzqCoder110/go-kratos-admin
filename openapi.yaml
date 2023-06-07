@@ -3,7 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: Officer API
+    title: ""
     version: 0.0.1
 paths:
     /admin/v1/login:
@@ -24,6 +24,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/backend.v1.LoginRep'
+    /admin/v1/menu:
+        post:
+            tags:
+                - Menu
+            description: Menu
+            operationId: Menu_MenuCreate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/backend.v1.MenuCreateReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /admin/v1/officer:
         get:
             tags:
@@ -153,6 +169,28 @@ components:
                 password:
                     type: string
                     description: '@gotags: `validate:"required,min=6,max=20" label:"密码"`'
+        backend.v1.MenuCreateReq:
+            type: object
+            properties:
+                pid:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                    description: '@gotags: validate:"required,min=1,max=50" label:"菜单名称"`'
+                icon:
+                    type: string
+                    description: '@gotags: `validate:"required,min=1,max=20" label:"icon"`'
+                path:
+                    type: string
+                    description: '@gotags: `validate:"required,max=50" label:"路径"`'
+                status:
+                    type: integer
+                    description: '@gotags: `validate:"required,oneof=1 2" label:"状态"`'
+                    format: int64
+                Sequence:
+                    type: integer
+                    format: int64
         backend.v1.OfficerInfo:
             type: object
             properties:
@@ -197,4 +235,5 @@ components:
                     description: '@gotags: `validate:"required,oneof=1 2" label:"状态"`'
                     format: int64
 tags:
+    - name: Menu
     - name: Officer

@@ -4,6 +4,7 @@ import (
 	v1 "go-sim/api/backend/v1"
 	"go-sim/internal/conf"
 	"go-sim/internal/server/middleware"
+	"go-sim/internal/service/menu"
 	"go-sim/internal/service/officer"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -12,11 +13,8 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, cj *conf.Jwt, Officer *officer.OfficerService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, cj *conf.Jwt, Officer *officer.OfficerService, Menu *menu.MenuService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
-		//http.Middleware(
-		//	recovery.Recovery(),
-		//),
 		middleware.NewMiddleware(cj),
 		http.Filter(handlers.CORS(
 			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
@@ -35,5 +33,6 @@ func NewHTTPServer(c *conf.Server, cj *conf.Jwt, Officer *officer.OfficerService
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterOfficerHTTPServer(srv, Officer)
+	v1.RegisterMenuHTTPServer(srv, Menu)
 	return srv
 }

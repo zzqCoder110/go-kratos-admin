@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package backend.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "go-sim/api/backend/v1;v1";
+
+service Menu {
+  // Menu
+  rpc MenuCreate (MenuCreateReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/menu"
+      body: "*"
+    };
+  }
+}
+
+
+message MenuCreateReq {
+  int64 pid = 1;
+  // @gotags: validate:"required,min=1,max=50" label:"菜单名称"`
+  string name = 2;
+  // @gotags: `validate:"required,min=1,max=20" label:"icon"`
+  string icon = 3;
+  // @gotags: `validate:"required,max=50" label:"路径"`
+  string path = 4;
+  // @gotags: `validate:"required,oneof=1 2" label:"状态"`
+  int64 status = 5;
+  int64 Sequence = 6;
+}

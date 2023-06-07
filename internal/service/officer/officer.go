@@ -12,7 +12,7 @@ type OfficerService struct {
 	uc *biz.OfficerUsecase
 }
 
-// NewGreeterService new a greeter service.
-func NewGreeterService(uc *biz.OfficerUsecase) *OfficerService {
+// NewOfficerService new a greeter service.
+func NewOfficerService(uc *biz.OfficerUsecase) *OfficerService {
 	return &OfficerService{uc: uc}
 }

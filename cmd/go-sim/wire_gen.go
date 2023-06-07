@@ -13,6 +13,7 @@ import (
 	"go-sim/internal/conf"
 	"go-sim/internal/data"
 	"go-sim/internal/server"
+	"go-sim/internal/service/menu"
 	"go-sim/internal/service/officer"
 )
 
@@ -31,9 +32,12 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.Jwt, logger
 	}
 	officerRepo := data.NewOfficerRepo(dataData, logger)
 	officerUsecase := biz.NewOfficerUsecase(jwt, officerRepo, logger)
-	officerService := officer.NewGreeterService(officerUsecase)
+	officerService := officer.NewOfficerService(officerUsecase)
 	grpcServer := server.NewGRPCServer(confServer, officerService, logger)
-	httpServer := server.NewHTTPServer(confServer, jwt, officerService, logger)
+	menuRepo := data.NewMenuRepo(dataData, logger)
+	menuUsecase := biz.NewMenuUsecase(menuRepo, logger)
+	menuService := menu.NewMenuService(menuUsecase)
+	httpServer := server.NewHTTPServer(confServer, jwt, officerService, menuService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

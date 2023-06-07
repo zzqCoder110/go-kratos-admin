@@ -52,7 +52,6 @@ message CreateReq {
   int64 status = 5;
 }
 
-
 message LoginReq {
   // @gotags: validate:"required,min=3,max=50" label:"用户名"`
   string username = 1;
