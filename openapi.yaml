@@ -69,6 +69,18 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/menu/list:
+        get:
+            tags:
+                - Menu
+            operationId: Menu_MenuList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/backend.v1.MenuGetListRep'
     /admin/v1/officer:
         get:
             tags:
@@ -220,6 +232,42 @@ components:
                 sequence:
                     type: integer
                     format: int64
+        backend.v1.MenuGetListRep:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/backend.v1.MenuInfo'
+        backend.v1.MenuInfo:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                pid:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                icon:
+                    type: string
+                path:
+                    type: string
+                type:
+                    type: integer
+                    format: int64
+                sequence:
+                    type: integer
+                    format: int64
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                Children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/backend.v1.MenuInfo'
         backend.v1.MenuUpdateReq:
             type: object
             properties:

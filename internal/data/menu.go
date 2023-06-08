@@ -43,3 +43,11 @@ func (m *menuRepo) GetById(ctx context.Context, id int64) (*biz.Menu, error) {
 	}
 	return data, nil
 }
+
+func (m *menuRepo) GetList(ctx context.Context, params map[string]interface{}) ([]*biz.Menu, error) {
+	var data []*biz.Menu
+
+	m.data.db.Find(&data)
+
+	return data, nil
+}

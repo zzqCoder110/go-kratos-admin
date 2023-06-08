@@ -22,6 +22,7 @@ type Menu struct {
 	Sequence  int64     `json:"sequence" gorm:"column:sequence"`
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty" gorm:"column:updated_at"`
+	Children  []*Menu   `gorm:"-"`
 }
 
 const (
@@ -39,6 +40,7 @@ type MenuRepo interface {
 	Update(context.Context, *Menu) error
 	Delete(context.Context, int64) error
 	GetById(context.Context, int64) (*Menu, error)
+	GetList(context.Context, map[string]interface{}) ([]*Menu, error)
 }
 
 type MenuUsecase struct {
@@ -65,4 +67,26 @@ func (uc *MenuUsecase) Update(ctx context.Context, m *Menu) error {
 	}
 	m.CreatedAt = menu.CreatedAt
 	return uc.repo.Update(ctx, m)
+}
+
+func (uc *MenuUsecase) GetList(ctx context.Context) ([]*Menu, error) {
+	menus, err := uc.repo.GetList(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	list := toTree(menus, 0)
+	return list, nil
+}
+
+func toTree(menus []*Menu, parentId int64) []*Menu {
+	var subMenus []*Menu
+
+	for _, menu := range menus {
+		if menu.Pid == parentId {
+			children := toTree(menus, menu.Id)
+			menu.Children = children
+			subMenus = append(subMenus, menu)
+		}
+	}
+	return subMenus
 }
