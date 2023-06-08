@@ -21,15 +21,21 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationMenuMenuCreate = "/backend.v1.Menu/MenuCreate"
+const OperationMenuMenuDelete = "/backend.v1.Menu/MenuDelete"
+const OperationMenuMenuUpdate = "/backend.v1.Menu/MenuUpdate"
 
 type MenuHTTPServer interface {
 	// MenuCreate Menu
 	MenuCreate(context.Context, *MenuCreateReq) (*emptypb.Empty, error)
+	MenuDelete(context.Context, *MenuDeleteReq) (*emptypb.Empty, error)
+	MenuUpdate(context.Context, *MenuUpdateReq) (*emptypb.Empty, error)
 }
 
 func RegisterMenuHTTPServer(s *http.Server, srv MenuHTTPServer) {
 	r := s.Route("/")
 	r.POST("/admin/v1/menu", _Menu_MenuCreate0_HTTP_Handler(srv))
+	r.DELETE("/admin/v1/menu", _Menu_MenuDelete0_HTTP_Handler(srv))
+	r.PUT("/admin/v1/menu", _Menu_MenuUpdate0_HTTP_Handler(srv))
 }
 
 func _Menu_MenuCreate0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
@@ -51,8 +57,48 @@ func _Menu_MenuCreate0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _Menu_MenuDelete0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in MenuDeleteReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMenuMenuDelete)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.MenuDelete(ctx, req.(*MenuDeleteReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Menu_MenuUpdate0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in MenuUpdateReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMenuMenuUpdate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.MenuUpdate(ctx, req.(*MenuUpdateReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type MenuHTTPClient interface {
 	MenuCreate(ctx context.Context, req *MenuCreateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	MenuDelete(ctx context.Context, req *MenuDeleteReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	MenuUpdate(ctx context.Context, req *MenuUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type MenuHTTPClientImpl struct {
@@ -70,6 +116,32 @@ func (c *MenuHTTPClientImpl) MenuCreate(ctx context.Context, in *MenuCreateReq, 
 	opts = append(opts, http.Operation(OperationMenuMenuCreate))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MenuHTTPClientImpl) MenuDelete(ctx context.Context, in *MenuDeleteReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/admin/v1/menu"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationMenuMenuDelete))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MenuHTTPClientImpl) MenuUpdate(ctx context.Context, in *MenuUpdateReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/admin/v1/menu"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMenuMenuUpdate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

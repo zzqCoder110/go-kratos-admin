@@ -27,6 +27,11 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
 
+.PHONY: run
+# generate internal proto
+run:
+	kratos run
+
 .PHONY: config
 # generate internal proto
 config:

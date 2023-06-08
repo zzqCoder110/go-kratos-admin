@@ -2,8 +2,13 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"time"
+)
+
+var (
+	ErrNotFound = errors.New("未找到内容")
 )
 
 // Menu is a Menu model.
@@ -13,18 +18,27 @@ type Menu struct {
 	Name      string    `json:"name" gorm:"column:name"`
 	Icon      string    `json:"icon" gorm:"column:icon"`
 	Path      string    `json:"path" gorm:"column:path"`
-	Status    int64     `json:"status" gorm:"column:status"`
+	Type      int64     `json:"type" gorm:"column:type"`
 	Sequence  int64     `json:"sequence" gorm:"column:sequence"`
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty" gorm:"column:updated_at"`
 }
+
+const (
+	TypeDir int = iota + 1
+	TypePage
+	TypeButton
+)
 
 func (m Menu) TableName() string {
 	return "menu"
 }
 
 type MenuRepo interface {
-	Creates(context.Context, *Menu) error
+	Create(context.Context, *Menu) error
+	Update(context.Context, *Menu) error
+	Delete(context.Context, int64) error
+	GetById(context.Context, int64) (*Menu, error)
 }
 
 type MenuUsecase struct {
@@ -37,5 +51,18 @@ func NewMenuUsecase(repo MenuRepo, logger log.Logger) *MenuUsecase {
 }
 
 func (uc *MenuUsecase) Create(ctx context.Context, m *Menu) error {
-	return uc.repo.Creates(ctx, m)
+	return uc.repo.Create(ctx, m)
+}
+
+func (uc *MenuUsecase) Delete(ctx context.Context, id int64) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *MenuUsecase) Update(ctx context.Context, m *Menu) error {
+	menu, err := uc.repo.GetById(ctx, m.Id)
+	if err != nil {
+		return err
+	}
+	m.CreatedAt = menu.CreatedAt
+	return uc.repo.Update(ctx, m)
 }

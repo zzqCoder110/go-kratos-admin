@@ -15,8 +15,25 @@ service Menu {
       body: "*"
     };
   }
+
+  rpc MenuDelete (MenuDeleteReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/menu"
+    };
+  }
+
+  rpc MenuUpdate (MenuUpdateReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/menu"
+      body: "*"
+    };
+  }
 }
 
+message MenuDeleteReq {
+  // @gotags: validate:"required,min=1" label:"主键"`
+  int64 id = 1;
+}
 
 message MenuCreateReq {
   int64 pid = 1;
@@ -26,7 +43,21 @@ message MenuCreateReq {
   string icon = 3;
   // @gotags: `validate:"required,max=50" label:"路径"`
   string path = 4;
-  // @gotags: `validate:"required,oneof=1 2" label:"状态"`
-  int64 status = 5;
-  int64 Sequence = 6;
+  // @gotags: `validate:"required,oneof=1 2 3" label:"类型"`
+  int64 type = 5;
+  int64 sequence = 6;
+}
+
+message MenuUpdateReq {
+  int64 id = 1;
+  int64 pid = 2;
+  // @gotags: validate:"required,min=1,max=50" label:"菜单名称"`
+  string name = 3;
+  // @gotags: `validate:"required,min=1,max=20" label:"icon"`
+  string icon = 4;
+  // @gotags: `validate:"required,max=50" label:"路径"`
+  string path = 5;
+  // @gotags: `validate:"required,oneof=1 2 3" label:"类型"`
+  int64 type = 6;
+  int64 sequence = 7;
 }
