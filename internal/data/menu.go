@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "go-sim/api/backend/v1"
 	"go-sim/internal/biz"
 	"gorm.io/gorm"
 )
@@ -47,7 +48,30 @@ func (m *menuRepo) GetById(ctx context.Context, id int64) (*biz.Menu, error) {
 func (m *menuRepo) GetList(ctx context.Context, params map[string]interface{}) ([]*biz.Menu, error) {
 	var data []*biz.Menu
 
-	m.data.db.Find(&data)
+	m.data.db.Order("sequence asc").Find(&data)
 
 	return data, nil
+}
+
+func (m *menuRepo) SortNodes(ctx context.Context, req *v1.MenuSortReq) error {
+	return m.data.db.Transaction(func(tx *gorm.DB) error {
+		return appendSortMenuNode(tx, req.List, 0)
+	})
+}
+
+func appendSortMenuNode(tx *gorm.DB, nodes []*v1.MenuSortReqChildren, parentId int64) error {
+	for index, node := range nodes {
+		if node.Children != nil {
+			if err := appendSortMenuNode(tx, node.Children, node.Id); err != nil {
+				return err
+			}
+		}
+		if err := tx.Model(&biz.Menu{}).Where("id = ?", node.GetId()).Updates(map[string]interface{}{
+			"pid":      parentId,
+			"sequence": index + 1,
+		}).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }

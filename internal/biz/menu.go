@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "go-sim/api/backend/v1"
 	"time"
 )
 
@@ -41,6 +42,7 @@ type MenuRepo interface {
 	Delete(context.Context, int64) error
 	GetById(context.Context, int64) (*Menu, error)
 	GetList(context.Context, map[string]interface{}) ([]*Menu, error)
+	SortNodes(context.Context, *v1.MenuSortReq) error
 }
 
 type MenuUsecase struct {
@@ -69,13 +71,17 @@ func (uc *MenuUsecase) Update(ctx context.Context, m *Menu) error {
 	return uc.repo.Update(ctx, m)
 }
 
-func (uc *MenuUsecase) GetList(ctx context.Context) ([]*Menu, error) {
+func (uc *MenuUsecase) GetListTree(ctx context.Context) ([]*Menu, error) {
 	menus, err := uc.repo.GetList(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	list := toTree(menus, 0)
 	return list, nil
+}
+
+func (uc *MenuUsecase) SortNodes(ctx context.Context, req *v1.MenuSortReq) error {
+	return uc.repo.SortNodes(ctx, req)
 }
 
 func toTree(menus []*Menu, parentId int64) []*Menu {

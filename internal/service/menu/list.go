@@ -8,7 +8,7 @@ import (
 )
 
 func (s *MenuService) MenuList(ctx context.Context, req *emptypb.Empty) (*v1.MenuGetListRep, error) {
-	menus, err := s.uc.GetList(ctx)
+	menus, err := s.uc.GetListTree(ctx)
 	if err != nil {
 		return nil, err
 	}

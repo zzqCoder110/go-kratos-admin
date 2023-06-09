@@ -28,6 +28,7 @@ type MenuClient interface {
 	MenuDelete(ctx context.Context, in *MenuDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MenuUpdate(ctx context.Context, in *MenuUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MenuList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MenuGetListRep, error)
+	MenuSort(ctx context.Context, in *MenuSortReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type menuClient struct {
@@ -74,6 +75,15 @@ func (c *menuClient) MenuList(ctx context.Context, in *emptypb.Empty, opts ...gr
 	return out, nil
 }
 
+func (c *menuClient) MenuSort(ctx context.Context, in *MenuSortReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/backend.v1.Menu/MenuSort", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MenuServer is the server API for Menu service.
 // All implementations must embed UnimplementedMenuServer
 // for forward compatibility
@@ -83,6 +93,7 @@ type MenuServer interface {
 	MenuDelete(context.Context, *MenuDeleteReq) (*emptypb.Empty, error)
 	MenuUpdate(context.Context, *MenuUpdateReq) (*emptypb.Empty, error)
 	MenuList(context.Context, *emptypb.Empty) (*MenuGetListRep, error)
+	MenuSort(context.Context, *MenuSortReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMenuServer()
 }
 
@@ -101,6 +112,9 @@ func (UnimplementedMenuServer) MenuUpdate(context.Context, *MenuUpdateReq) (*emp
 }
 func (UnimplementedMenuServer) MenuList(context.Context, *emptypb.Empty) (*MenuGetListRep, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MenuList not implemented")
+}
+func (UnimplementedMenuServer) MenuSort(context.Context, *MenuSortReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MenuSort not implemented")
 }
 func (UnimplementedMenuServer) mustEmbedUnimplementedMenuServer() {}
 
@@ -187,6 +201,24 @@ func _Menu_MenuList_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Menu_MenuSort_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MenuSortReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MenuServer).MenuSort(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backend.v1.Menu/MenuSort",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MenuServer).MenuSort(ctx, req.(*MenuSortReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Menu_ServiceDesc is the grpc.ServiceDesc for Menu service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -209,6 +241,10 @@ var Menu_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MenuList",
 			Handler:    _Menu_MenuList_Handler,
+		},
+		{
+			MethodName: "MenuSort",
+			Handler:    _Menu_MenuSort_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -34,6 +34,22 @@ service Menu {
       get: "/admin/v1/menu/list"
     };
   }
+
+  rpc MenuSort(MenuSortReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/menu/sort"
+      body: "*"
+    };
+  }
+}
+
+message MenuSortReqChildren {
+  int64 id = 1;
+  repeated MenuSortReqChildren children = 2;
+}
+
+message MenuSortReq {
+  MenuSortReqChildren list = 1;
 }
 
 message MenuInfo {

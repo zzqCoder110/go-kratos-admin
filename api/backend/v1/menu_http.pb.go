@@ -23,6 +23,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationMenuMenuCreate = "/backend.v1.Menu/MenuCreate"
 const OperationMenuMenuDelete = "/backend.v1.Menu/MenuDelete"
 const OperationMenuMenuList = "/backend.v1.Menu/MenuList"
+const OperationMenuMenuSort = "/backend.v1.Menu/MenuSort"
 const OperationMenuMenuUpdate = "/backend.v1.Menu/MenuUpdate"
 
 type MenuHTTPServer interface {
@@ -30,6 +31,7 @@ type MenuHTTPServer interface {
 	MenuCreate(context.Context, *MenuCreateReq) (*emptypb.Empty, error)
 	MenuDelete(context.Context, *MenuDeleteReq) (*emptypb.Empty, error)
 	MenuList(context.Context, *emptypb.Empty) (*MenuGetListRep, error)
+	MenuSort(context.Context, *MenuSortReq) (*emptypb.Empty, error)
 	MenuUpdate(context.Context, *MenuUpdateReq) (*emptypb.Empty, error)
 }
 
@@ -39,6 +41,7 @@ func RegisterMenuHTTPServer(s *http.Server, srv MenuHTTPServer) {
 	r.DELETE("/admin/v1/menu", _Menu_MenuDelete0_HTTP_Handler(srv))
 	r.PUT("/admin/v1/menu", _Menu_MenuUpdate0_HTTP_Handler(srv))
 	r.GET("/admin/v1/menu/list", _Menu_MenuList0_HTTP_Handler(srv))
+	r.POST("/admin/v1/menu/sort", _Menu_MenuSort0_HTTP_Handler(srv))
 }
 
 func _Menu_MenuCreate0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
@@ -117,10 +120,30 @@ func _Menu_MenuList0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) err
 	}
 }
 
+func _Menu_MenuSort0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in MenuSortReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMenuMenuSort)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.MenuSort(ctx, req.(*MenuSortReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type MenuHTTPClient interface {
 	MenuCreate(ctx context.Context, req *MenuCreateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	MenuDelete(ctx context.Context, req *MenuDeleteReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	MenuList(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *MenuGetListRep, err error)
+	MenuSort(ctx context.Context, req *MenuSortReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	MenuUpdate(ctx context.Context, req *MenuUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -165,6 +188,19 @@ func (c *MenuHTTPClientImpl) MenuList(ctx context.Context, in *emptypb.Empty, op
 	opts = append(opts, http.Operation(OperationMenuMenuList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MenuHTTPClientImpl) MenuSort(ctx context.Context, in *MenuSortReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/admin/v1/menu/sort"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMenuMenuSort))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

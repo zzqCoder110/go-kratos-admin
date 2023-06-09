@@ -81,6 +81,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/backend.v1.MenuGetListRep'
+    /admin/v1/menu/sort:
+        post:
+            tags:
+                - Menu
+            operationId: Menu_MenuSort
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/backend.v1.MenuSortReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /admin/v1/officer:
         get:
             tags:
@@ -268,6 +283,23 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/backend.v1.MenuInfo'
+        backend.v1.MenuSortReq:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/backend.v1.MenuSortReqChildren'
+        backend.v1.MenuSortReqChildren:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/backend.v1.MenuSortReqChildren'
         backend.v1.MenuUpdateReq:
             type: object
             properties:
